@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
-import { isEmpty } from "lodash";
-import { NavLink } from "react-router";
+import { useContext, useState } from 'react';
+import { isEmpty } from 'lodash';
+import { NavLink } from 'react-router';
 import {
   AppBar,
   Typography,
@@ -8,10 +8,10 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-} from "@mui/material";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+} from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
-import { UserContext } from "../context/User";
+import { UserContext } from '../context/User';
 
 export const NavBar = () => {
   const { user, logout } = useContext(UserContext);
@@ -32,10 +32,14 @@ export const NavBar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <NavLink to={"/"}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Home
-          </Typography>
+        <NavLink to={'/'}>
+          <IconButton color="inherit">
+            <Badge badgeContent={3} color="secondary">
+              {' '}
+              {/* ⚠️ aquí luego lo enlazamos con el estado real del carrito */}
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
         </NavLink>
         {user.user_name}
         <div>
@@ -53,13 +57,13 @@ export const NavBar = () => {
             id="menu-appbar"
             anchorEl={anchorEl}
             anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: 'top',
+              horizontal: 'right',
             }}
             keepMounted
             transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: 'top',
+              horizontal: 'right',
             }}
             open={Boolean(anchorEl)}
             onClose={handleClose}
