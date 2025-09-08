@@ -31,10 +31,10 @@ jwt_key = os.getenv("JWT_SECRET_KEY")
 
 # JWT
 app.config["JWT_SECRET_KEY"] = jwt_key
-app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 app.config["JWT_CSRF_IN_COOKIES"] = True
-app.config["JWT_COOKIE_SECURE"] = True
+app.config["JWT_COOKIE_SECURE"] = False
 
 jwt = JWTManager(app)
 
@@ -55,7 +55,13 @@ def health_check():
 
 
 auth_routes(app)
-app.register_blueprint(cart, url_prefix="/api")
+app.register_blueprint(cart)
+
+# 🔍 Debug: ver todas las rutas registradas
+with app.app_context():
+    print("🔎 Rutas registradas en Flask:")
+    print(app.url_map)
+
 
 if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 8080))
