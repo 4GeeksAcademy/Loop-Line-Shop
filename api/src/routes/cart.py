@@ -56,3 +56,35 @@ def get_cart():
 
     total = sum([i["subtotal"] for i in result])
     return jsonify({"items": result, "total": total}), 200
+
+
+# PUT /api/cart/<item_id> → actualizar cantidad
+@cart.route("/cart/<int:item_id>", methods=["PUT"])
+def update_cart_item(item_id):
+    data = request.get_json()
+    new_quantity = data.get("quantity")
+
+    if new_quantity is None or new_quantity < 1:
+        return jsonify({"error": "Cantidad inválida"}), 400
+
+    item = CartItem.query.get(item_id)
+    if not item:
+        return jsonify({"error": "Item no encontrado"}), 404
+
+    item.quantity = new_quantity
+    db.session.commit()
+
+    return jsonify(item.serialize()), 200
+
+
+# DELETE /api/cart/<item_id> → eliminar producto del carrito
+@cart.route("/cart/<int:item_id>", methods=["DELETE"])
+def delete_cart_item(item_id):
+    item = CartItem.query.get(item_id)
+    if not item:
+        return jsonify({"error": "Item no encontrado"}), 404
+
+    db.session.delete(item)
+    db.session.commit()
+
+    return jsonify({"message": "Item eliminado"}), 200
