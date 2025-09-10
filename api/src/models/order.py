@@ -11,6 +11,9 @@ class Order(db.Model):
     status = db.Column(db.String(50), default="created", nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+    address = db.Column(db.String(255), nullable=True)
+    payment_method = db.Column(db.String(50), nullable=True)
+
     items = db.relationship(
         "OrderItem", backref="order", cascade="all, delete-orphan", lazy=True
     )
@@ -22,6 +25,8 @@ class Order(db.Model):
             "total": round(self.total, 2),
             "status": self.status,
             "created_at": self.created_at.isoformat(),
+            "address": self.address,
+            "payment_method": self.payment_method,
             "items": [item.serialize() for item in self.items],
         }
 
