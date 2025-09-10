@@ -1,20 +1,32 @@
-import { Home } from "../../pages/Home";
-import { Login } from "../../pages/Login";
+import { Home } from '../../pages/Home';
+import { Login } from '../../pages/Login';
+import Cart from '../../components/Cart';
+import Checkout from '../../pages/Checkout';
 
 export const routesConfig = [
   {
-    name: "Root",
-    path: "/",
+    name: 'Root',
+    path: '/',
     component: <Home />,
   },
   {
-    name: "Login",
-    path: "/login",
+    name: 'Login',
+    path: '/login',
     component: <Login />,
   },
   {
-    name: "All",
-    path: "*",
+    name: 'Carrito',
+    path: '/cart',
+    component: <Cart />,
+  },
+  {
+    name: 'Checkout',
+    path: '/checkout',
+    component: <Checkout />,
+  },
+  {
+    name: 'All',
+    path: '*',
     component: <Home />,
   },
 ];
