@@ -9,6 +9,7 @@ from src.db import db
 from src.admin.setup_admin import setup_admin
 from flask_cors import CORS
 from src.routes.cart import cart
+from src.routes.checkout import checkout
 
 
 from flask_jwt_extended import (
@@ -56,6 +57,7 @@ def health_check():
 
 auth_routes(app)
 app.register_blueprint(cart)
+app.register_blueprint(checkout)
 
 # 🔍 Debug: ver todas las rutas registradas
 with app.app_context():
