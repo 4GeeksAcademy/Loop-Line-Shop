@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Toolbar,
+  Badge,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
@@ -36,8 +37,8 @@ export const NavBar = () => {
           <IconButton color="inherit">
             <Badge badgeContent={3} color="secondary">
               {' '}
-              {/* ⚠️ aquí luego lo enlazamos con el estado real del carrito */}
-              <ShoppingCartIcon />
+              {/* ⚠️ aquí luego lo enlazamos con el estado real del carrito
+              <ShoppingCartIcon />*/}
             </Badge>
           </IconButton>
         </NavLink>
