@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "husky": "^9.1.7",
     "concurrently": "^8.2.0",
     "eslint": "^8.50.0",
+    "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.0"
   },
@@ -19,5 +19,9 @@
   "lint-staged": {
     "*.{js,jsx,json,css,html}": "prettier --write",
     "*.py": "pipenv run ruff format"
+  },
+  "dependencies": {
+    "axios": "^1.12.1",
+    "react-router-dom": "^7.9.0"
   }
 }

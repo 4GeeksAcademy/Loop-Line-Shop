@@ -11,11 +11,18 @@ PLATZI_API = "https://api.escuelajs.co/api/v1/products"
 
 
 @checkout.route("/checkout", methods=["POST"])
-# puedes quitar @jwt_required si de momento pasas user_id por body
-# @jwt_required()
+@jwt_required()
 def create_order():
     data = request.get_json()
-    user_id = data.get("user_id")  # o get_jwt_identity()
+    user_id = get_jwt_identity()
+    address = data.get("address")
+    payment_method = data.get("payment_method")
+
+    # Validaciones
+    if not user_id:
+        return jsonify({"error": "Falta user_id"}), 400
+    if not address or not payment_method:
+        return jsonify({"error": "Faltan datos de envío o método de pago"}), 400
 
     # Traer los items del carrito
     items = CartItem.query.filter_by(user_id=user_id).all()
@@ -26,6 +33,7 @@ def create_order():
     order_items = []
 
     for ci in items:
+        # Obtener info del producto desde la API de Platzi
         r = requests.get(f"{PLATZI_API}/{ci.product_id}")
         if r.status_code != 200:
             return jsonify({"error": f"Producto {ci.product_id} no encontrado"}), 404
@@ -45,22 +53,29 @@ def create_order():
             }
         )
 
-    # Crear Order
-    order = Order(user_id=user_id, total=order_total, status="created")
+    # Crear la orden
+    order = Order(
+        user_id=user_id,
+        address=address,
+        payment_method=payment_method,
+        total=order_total,
+        status="confirmed",
+    )
     db.session.add(order)
-    db.session.flush()  # para tener order.id
+    db.session.flush()  # genera order.id antes del commit
 
-    # Crear OrderItems
+    # Crear los items asociados
     for oi in order_items:
-        item = OrderItem(
-            order_id=order.id,
-            product_id=oi["product_id"],
-            name=oi["name"],
-            image=oi["image"],
-            unit_price=oi["unit_price"],
-            quantity=oi["quantity"],
+        db.session.add(
+            OrderItem(
+                order_id=order.id,
+                product_id=oi["product_id"],
+                name=oi["name"],
+                image=oi["image"],
+                unit_price=oi["unit_price"],
+                quantity=oi["quantity"],
+            )
         )
-        db.session.add(item)
 
     # Vaciar carrito
     CartItem.query.filter_by(user_id=user_id).delete()
