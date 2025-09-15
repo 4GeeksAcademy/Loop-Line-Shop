@@ -5,6 +5,8 @@ from sqlalchemy import or_
 import bcrypt
 from flask_jwt_extended import (
     create_access_token,
+    get_csrf_token,
+    set_access_cookies,
     unset_jwt_cookies,
     jwt_required,
     get_jwt_identity,
@@ -40,7 +42,9 @@ def auth_routes(app):
         ).decode("utf-8")
 
         # Create user
-        new_user = Users(user_name=user_name, email=email, password=hashed_password)
+        new_user = Users(
+            user_name=user_name, email=email, password_hash=hashed_password
+        )
         db.session.add(new_user)
         db.session.commit()
 
@@ -61,19 +65,24 @@ def auth_routes(app):
         if not user:
             return jsonify({"error": "User not found"}), 400
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+        if not bcrypt.checkpw(
+            password.encode("utf-8"), user.password_hash.encode("utf-8")
+        ):
             return jsonify({"error": "Password not correct"}), 400
 
-        # ✅ Generamos JWT
+        # Create JWT and CSRF token
         access_token = create_access_token(identity=str(user.id))
+        csrf_token = get_csrf_token(access_token)
 
-        return jsonify(
+        response = jsonify(
             {
                 "msg": "login successful",
                 "user": user.serialize(),
-                "access_token": access_token,
+                "csrf_token": csrf_token,
             }
-        ), 200
+        )
+        set_access_cookies(response, access_token)
+        return response
 
     @app.route("/logout", methods=["POST"])
     @jwt_required()

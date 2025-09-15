@@ -1,12 +1,38 @@
-import { useContext, useState } from "react";
-import { Button, Container, TextField, FormGroup } from "@mui/material";
-import { UserContext } from "../context/User";
+import { useContext, useState } from 'react';
+import {
+  Button,
+  Container,
+  TextField,
+  FormGroup,
+  Typography,
+} from '@mui/material';
+import { UserContext } from '../context/User';
 
 export const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const { login } = useContext(UserContext);
+  const { login, users } = useContext(UserContext);
+  const handleSubmit = () => {
+    setError('');
+
+    // Validar email único desde el contexto
+    const emailExists = users?.some((user) => user.email === email);
+    if (emailExists) {
+      setError('El email ya está registrado, prueba con otro.');
+      return;
+    }
+
+    // Validar longitud mínima de contraseña (8 caracteres)
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    // Si pasa validaciones, ejecuta login
+    login(email, password);
+  };
 
   return (
     <Container>
@@ -28,7 +54,28 @@ export const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </FormGroup>
-      <Button variant="primary" onClick={() => login(email, password)}>
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      <Button
+        variant="primary"
+        sx={{
+          background: 'linear-gradient(45deg, #416dffff, #2baeffff)',
+          color: '#fff',
+          fontWeight: 'bold',
+          borderRadius: 2,
+          px: 3,
+          py: 1.5,
+          boxShadow: '0 4px 12px rgba(255,65,108,0.5)',
+          '&:hover': {
+            background: 'linear-gradient(45deg, #ff4b2b, #ff416c)',
+            transform: 'scale(1.05)',
+          },
+        }}
+        onClick={handleSubmit}
+      >
         Submit
       </Button>
     </Container>

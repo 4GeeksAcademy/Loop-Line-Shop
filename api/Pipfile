@@ -17,6 +17,7 @@ python-dotenv = "*"
 cloudinary = "*"
 flask-admin = "*"
 requests = "*"
+datetime = "*"
 
 [dev-packages]
 
