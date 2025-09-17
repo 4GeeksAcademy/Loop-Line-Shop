@@ -1,9 +1,45 @@
-import { getCurrentUser } from '../services/api/users';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardMedia, Grid2, Typography } from '@mui/material';
+import { getProducts } from '../services/api/product';
 
-export const Home = () => {
-  getCurrentUser().then((data) => {
-    console.log(data);
-  });
+export default function Home() {
+  const [products, setProducts] = useState([]);
 
-  return <>Produtos</>;
-};
+  useEffect(() => {
+    getProducts().then((listaApi) => {
+      setProducts(listaApi);
+    });
+  }, []);
+
+  return (
+    <>
+      <div>
+        <Typography variant="h4" gutterBottom>
+          Produtos
+        </Typography>
+        <Grid2 container spacing={3}>
+          <Grid2 size={2}></Grid2>
+          <Grid2 item size={8}>
+            {products.map((product) => (
+              <Grid2 item key={product.id}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    height={140}
+                    image={product.images[0]}
+                  />
+                  <CardContent>
+                    <Typography>
+                      {product.title} {product.price}€
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid2>
+            ))}
+          </Grid2>
+          <Grid2 size={2}></Grid2>
+        </Grid2>
+      </div>
+    </>
+  );
+}
