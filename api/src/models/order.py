@@ -7,9 +7,11 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    address = db.Column(db.String(255), nullable=False)
+    payment_method = db.Column(db.String(50), nullable=False)
     total = db.Column(db.Float, nullable=False, default=0.0)
-    status = db.Column(db.String(50), default="created", nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(db.String(50), default="pending", nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     items = db.relationship(
         "OrderItem", backref="order", cascade="all, delete-orphan", lazy=True
@@ -19,9 +21,11 @@ class Order(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
+            "address": self.address,
+            "payment_method": self.payment_method,
             "total": round(self.total, 2),
             "status": self.status,
-            "created_at": self.created_at.isoformat(),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
             "items": [item.serialize() for item in self.items],
         }
 
@@ -32,8 +36,8 @@ class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
     product_id = db.Column(db.Integer, nullable=False)
-    name = db.Column(db.String(255), nullable=True)
-    image = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.String(255), nullable=False)
+    image = db.Column(db.String(255))
     unit_price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 

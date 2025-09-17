@@ -8,15 +8,24 @@ import {
   Avatar,
   Divider,
   Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { UserContext } from '../context/User';
 import { getCart } from '../services/api/cart';
 import { checkoutOrder } from '../services/api/checkout';
+import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
   const { user } = useContext(UserContext);
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [message, setMessage] = useState('');
+  const [address, setAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.id) {
@@ -25,19 +34,29 @@ export default function Checkout() {
           const data = await getCart(user.id);
           setCart(data);
         } catch (err) {
-          console.error('Error cargando carrito:', err);
+          console.error('❌ Error cargando carrito:', err);
         }
       })();
     }
   }, [user]);
 
   const handleConfirmOrder = async () => {
+    if (!address || !paymentMethod) {
+      setMessage('⚠️ Completa dirección y método de pago');
+      return;
+    }
+
     try {
-      const order = await checkoutOrder(user.id);
+      const order = await checkoutOrder({
+        address,
+        payment_method: paymentMethod,
+      });
       setMessage(`🎉 Pedido #${order.id} creado con éxito por $${order.total}`);
       setCart({ items: [], total: 0 });
+      setAddress('');
+      setPaymentMethod('');
+      navigate('/order-confirmation', { state: { order } });
     } catch (err) {
-      console.error('Error en checkout:', err);
       setMessage('❌ Error al procesar el pedido.');
     }
   };
@@ -55,6 +74,8 @@ export default function Checkout() {
       <Typography variant="h4" gutterBottom>
         Checkout
       </Typography>
+
+      {/* Carrito */}
       <List>
         {cart.items.map((item) => (
           <div key={item.id}>
@@ -71,10 +92,36 @@ export default function Checkout() {
           </div>
         ))}
       </List>
+
       <Typography variant="h5" sx={{ marginTop: '1rem' }}>
         Total: ${cart.total}
       </Typography>
 
+      {/* Dirección */}
+      <TextField
+        label="Dirección de envío"
+        fullWidth
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        sx={{ marginTop: '1rem' }}
+      />
+
+      {/* Método de pago */}
+      <FormControl fullWidth sx={{ marginTop: '1rem' }}>
+        <InputLabel id="payment-method-label">Método de pago</InputLabel>
+        <Select
+          labelId="payment-method-label"
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+        >
+          <MenuItem value="">Selecciona método</MenuItem>
+          <MenuItem value="credit_card">Tarjeta</MenuItem>
+          <MenuItem value="paypal">PayPal</MenuItem>
+          <MenuItem value="bank_transfer">Transferencia</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Botón confirmar */}
       {cart.items.length > 0 && (
         <Button
           variant="contained"
@@ -87,6 +134,7 @@ export default function Checkout() {
         </Button>
       )}
 
+      {/* Mensajes */}
       {message && (
         <Typography variant="body1" sx={{ marginTop: '1rem' }}>
           {message}

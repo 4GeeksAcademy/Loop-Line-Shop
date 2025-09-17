@@ -42,7 +42,9 @@ def auth_routes(app):
         ).decode("utf-8")
 
         # Create user
-        new_user = Users(user_name=user_name, email=email, password=hashed_password)
+        new_user = Users(
+            user_name=user_name, email=email, password_hash=hashed_password
+        )
         db.session.add(new_user)
         db.session.commit()
 
@@ -63,7 +65,9 @@ def auth_routes(app):
         if not user:
             return jsonify({"error": "User not found"}), 400
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+        if not bcrypt.checkpw(
+            password.encode("utf-8"), user.password_hash.encode("utf-8")
+        ):
             return jsonify({"error": "Password not correct"}), 400
 
         # Create JWT and CSRF token
