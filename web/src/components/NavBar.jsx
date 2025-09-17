@@ -3,7 +3,7 @@ import { isEmpty } from 'lodash';
 import { NavLink } from 'react-router';
 import {
   AppBar,
-  Typography,
+  Badge,
   IconButton,
   Menu,
   MenuItem,
