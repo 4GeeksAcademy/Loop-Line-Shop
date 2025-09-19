@@ -1,25 +1,23 @@
+// src/components/NavBar.jsx
 import { useContext, useState } from 'react';
-import { isEmpty } from 'lodash';
-import { NavLink } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import {
   AppBar,
-  Typography,
+  Toolbar,
   IconButton,
   Menu,
   MenuItem,
-  Toolbar,
+  Typography,
+  Badge,
+  Button,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { UserContext } from '../context/User';
 
 export const NavBar = () => {
   const { user, logout } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -29,48 +27,65 @@ export const NavBar = () => {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    logout();
+    handleClose();
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
-        <NavLink to={'/'}>
+        {/* Logo / Home */}
+        <NavLink to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            🛍️ Loop&Line Shop
+          </Typography>
+        </NavLink>
+
+        {/* Carrito */}
+        <NavLink to="/cart" style={{ color: 'inherit' }}>
           <IconButton color="inherit">
             <Badge badgeContent={3} color="secondary">
-              {' '}
-              {/* ⚠️ aquí luego lo enlazamos con el estado real del carrito */}
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
         </NavLink>
-        {user.user_name}
-        <div>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
+
+        {/* Menú de usuario */}
+        {user && user.user_name ? (
+          <>
+            <Typography variant="body1" sx={{ marginRight: 2 }}>
+              {user.user_name}
+            </Typography>
+            <IconButton
+              size="large"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              keepMounted
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <NavLink
+            to="/login"
+            style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
-        </div>
+            <Button color="inherit">Login</Button>
+          </NavLink>
+        )}
       </Toolbar>
     </AppBar>
   );

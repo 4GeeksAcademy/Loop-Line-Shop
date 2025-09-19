@@ -1,6 +1,9 @@
 import { Home } from '../../pages/Home';
 import { Login } from '../../pages/Login';
 import { Miperfil } from '../../pages/Miperfil';
+import Cart from '../../components/Cart';
+import Checkout from '../../pages/Checkout';
+import OrderConfirmation from '../../pages/OrderConfirmation';
 
 export const routesConfig = [
   {
@@ -18,7 +21,21 @@ export const routesConfig = [
     path: '/Miperfil',
     component: <Miperfil />,
   },
-
+  {
+    name: 'Carrito',
+    path: '/cart',
+    component: <Cart />,
+  },
+  {
+    name: 'Checkout',
+    path: '/checkout',
+    component: <Checkout />,
+  },
+  {
+    name: 'OrderConfirmation',
+    path: '/order-confirmation',
+    component: <OrderConfirmation />,
+  },
   {
     name: 'All',
     path: '*',

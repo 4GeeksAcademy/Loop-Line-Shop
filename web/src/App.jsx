@@ -1,17 +1,17 @@
-import { Routes, Route } from "react-router";
-
-import { NavBar } from "./components/NavBar";
-import { routesConfig } from "./services/routing/routes";
-import { GuardedRoute } from "./components/routing/GuardedRoute";
-import { LoginRedirect } from "./components/routing/LoginRedirect";
+import { Routes, Route } from 'react-router-dom';
+import { routesConfig } from './services/routing/routes';
+import { GuardedRoute } from './components/routing/GuardedRoute';
+import { LoginRedirect } from './components/routing/LoginRedirect';
+import OrderConfirmation from './pages/OrderConfirmation';
+import { NavBar } from './components/NavBar';
 
 export const App = () => {
   return (
     <>
-      <NavBar />
       <Routes>
         <Route path="/login" element={<LoginRedirect />} />
         <Route element={<GuardedRoute />}>
+          <Route element={<LayoutWithNavbar />}></Route>
           {routesConfig.map((route) => {
             return (
               <Route
@@ -21,8 +21,16 @@ export const App = () => {
               />
             );
           })}
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
         </Route>
       </Routes>
     </>
   );
 };
+
+const LayoutWithNavbar = () => (
+  <>
+    <NavBar />
+    <Outlet />
+  </>
+);

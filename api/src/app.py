@@ -9,6 +9,7 @@ from src.db import db
 from src.admin.setup_admin import setup_admin
 from flask_cors import CORS
 from src.routes.cart import cart
+from src.routes.checkout import checkout
 
 
 from flask_jwt_extended import (
@@ -17,6 +18,11 @@ from flask_jwt_extended import (
 
 load_dotenv()
 app = Flask(__name__)
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:5173", "https://*.github.dev"],
+)
 start_time = time.time()
 
 db_url = os.getenv("DATABASE_URL")
@@ -31,10 +37,12 @@ jwt_key = os.getenv("JWT_SECRET_KEY")
 
 # JWT
 app.config["JWT_SECRET_KEY"] = jwt_key
-app.config["JWT_TOKEN_LOCATION"] = ["headers"]
-app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_CSRF_IN_COOKIES"] = True
 app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_CSRF_CHECK_FORM"] = True
 
 jwt = JWTManager(app)
 
@@ -56,6 +64,7 @@ def health_check():
 
 auth_routes(app)
 app.register_blueprint(cart)
+app.register_blueprint(checkout)
 
 # 🔍 Debug: ver todas las rutas registradas
 with app.app_context():
