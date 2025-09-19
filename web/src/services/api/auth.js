@@ -1,47 +1,30 @@
-import { baseUrl, fetchWrapper } from "./config";
+import { baseUrl, fetchWrapper } from './config';
 
+// Registro
 export const postRegister = async (username, email, password) => {
-  return await fetchWrapper(`${baseUrl}register`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_name: username,
-      email: email,
-      password: password,
-    }),
-  }).then((data) => {
-    return data;
+  return fetchWrapper(`${baseUrl}/api/register`, {
+    method: 'POST',
+    body: JSON.stringify({ user_name: username, email, password }),
   });
 };
 
+// Login
 export const postLogin = async (email, password) => {
-  return await fetchWrapper(`${baseUrl}login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      email: email,
-      password: password,
-    }),
+  return fetchWrapper(`${baseUrl}/api/login`, {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
   }).then((data) => {
-    sessionStorage.setItem("csrf_access_token", data.csrf_token);
+    if (data?.acces_token) {
+      //sessionStorage.setItem("csrf_access_token", data.csrf_token);
+      localStorage.setItem('token', data.access_token);
+    }
     return data;
   });
 };
 
+// Logout
 export const postLogout = async () => {
-  return await fetchWrapper(`${baseUrl}logout`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((data) => {
-    return data;
+  return fetchWrapper(`${baseUrl}/api/logout`, {
+    method: 'POST',
   });
 };

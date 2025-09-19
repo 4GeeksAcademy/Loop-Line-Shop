@@ -14,7 +14,10 @@ PLATZI_API = "https://api.escuelajs.co/api/v1/products"
 @jwt_required()
 def create_order():
     data = request.get_json()
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
+    print("🔎 DEBUG checkout:")
+    print("data:", data)
+    print("user_id from JWT:", user_id)
     address = data.get("address")
     payment_method = data.get("payment_method")
 

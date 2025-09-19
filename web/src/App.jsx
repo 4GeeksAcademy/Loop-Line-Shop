@@ -1,30 +1,31 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import { routesConfig } from './services/routing/routes';
 import { GuardedRoute } from './components/routing/GuardedRoute';
 import { LoginRedirect } from './components/routing/LoginRedirect';
 import OrderConfirmation from './pages/OrderConfirmation';
 import { NavBar } from './components/NavBar';
+import Orders from './pages/Orders';
 
 export const App = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<LoginRedirect />} />
-        <Route element={<GuardedRoute />}>
-          <Route element={<LayoutWithNavbar />}></Route>
-          {routesConfig.map((route) => {
-            return (
-              <Route
-                key={route.name}
-                path={route.path}
-                element={route.component}
-              />
-            );
-          })}
+    <Routes>
+      <Route path="/login" element={<LoginRedirect />} />
+
+      <Route element={<GuardedRoute />}>
+        <Route element={<LayoutWithNavbar />}>
+          {routesConfig.map((route) => (
+            <Route
+              key={route.name}
+              path={route.path}
+              element={route.component}
+            />
+          ))}
+
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="/orders" element={<Orders />} />
         </Route>
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
 };
 
