@@ -1,5 +1,5 @@
 from src.db import db
-from flask import request, jsonify
+from flask import Blueprint, request, jsonify
 from src.models.user import Users
 from sqlalchemy import or_
 import bcrypt
@@ -12,90 +12,103 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
+auth = Blueprint("auth", __name__)
 
-def auth_routes(app):
-    @app.route("/register", methods=["POST"])
-    def register():
-        data = request.get_json()
-        required_fields = ["user_name", "email", "password"]
 
-        if not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
+# ============================
+#   REGISTER
+# ============================
+@auth.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    required_fields = ["user_name", "email", "password"]
 
-        user_name = data["user_name"]
-        email = data["email"]
-        password = data["password"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
 
-        # Check for existing user
-        existing_user = (
-            db.session.query(Users)
-            .filter(or_(Users.user_name == user_name, Users.email == email))
-            .first()
-        )
+    user_name = data["user_name"]
+    email = data["email"]
+    password = data["password"]
 
-        if existing_user:
-            return jsonify({"error": "Username or Email already registered"}), 400
+    # Check for existing user
+    existing_user = (
+        db.session.query(Users)
+        .filter(or_(Users.user_name == user_name, Users.email == email))
+        .first()
+    )
 
-        # Hash password
-        hashed_password = bcrypt.hashpw(
-            password.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
+    if existing_user:
+        return jsonify({"error": "Username or Email already registered"}), 400
 
-        # Create user
-        new_user = Users(
-            user_name=user_name, email=email, password_hash=hashed_password
-        )
-        db.session.add(new_user)
-        db.session.commit()
+    # Hash password
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode(
+        "utf-8"
+    )
 
-        return jsonify({"message": "User registered successfully"}), 201
+    # Create user
+    new_user = Users(user_name=user_name, email=email, password_hash=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
 
-    @app.route("/login", methods=["POST"])
-    def login():
-        data = request.get_json()
-        required_fields = ["email", "password"]
+    return jsonify({"message": "User registered successfully"}), 201
 
-        if not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
 
-        email = data["email"]
-        password = data["password"]
+#   LOGIN
 
-        user = Users.query.filter_by(email=email).first()
-        if not user:
-            return jsonify({"error": "User not found"}), 400
 
-        if not bcrypt.checkpw(
-            password.encode("utf-8"), user.password_hash.encode("utf-8")
-        ):
-            return jsonify({"error": "Password not correct"}), 400
+@auth.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    required_fields = ["email", "password"]
 
-        # Create JWT and CSRF token
-        access_token = create_access_token(identity=str(user.id))
-        csrf_token = get_csrf_token(access_token)
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
 
-        response = jsonify(
-            {
-                "msg": "login successful",
-                "user": user.serialize(),
-                "csrf_token": csrf_token,
-            }
-        )
-        set_access_cookies(response, access_token)
-        return response
+    email = data["email"]
+    password = data["password"]
 
-    @app.route("/logout", methods=["POST"])
-    @jwt_required()
-    def logout():
-        response = jsonify({"msg": "logout successful"})
-        unset_jwt_cookies(response)
-        return response
+    user = Users.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 400
 
-    @app.route("/me", methods=["GET"])
-    @jwt_required()
-    def get_current_user():
-        user_id = get_jwt_identity()
-        user = Users.query.get(user_id)
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-        return jsonify(user.serialize()), 200
+    if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
+        return jsonify({"error": "Password not correct"}), 400
+
+    # Create JWT and CSRF token
+    access_token = create_access_token(identity=str(user.id))
+    csrf_token = get_csrf_token(access_token)
+
+    response = jsonify(
+        {
+            "msg": "login successful",
+            "user": user.serialize(),
+            "user_id": user.id,
+            "csrf_token": csrf_token,
+        }
+    )
+    set_access_cookies(response, access_token)
+    return response
+
+
+#   LOGOUT
+
+
+@auth.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response
+
+
+#   GET CURRENT USER
+
+
+@auth.route("/me", methods=["GET"])
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()
+    user = Users.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.serialize()), 200
