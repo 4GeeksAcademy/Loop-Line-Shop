@@ -27,12 +27,12 @@ export const Miperfil = () => {
   ];
 
   const handleChange = (e) => {
-    const { name, value } = e.target; // 👈 corregido
+    const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]; // 👈 corregido
+    const file = e.target.files[0];
     if (file) {
       setFormData({
         ...formData,

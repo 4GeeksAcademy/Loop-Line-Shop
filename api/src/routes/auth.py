@@ -1,6 +1,6 @@
 from src.db import db
 from flask import request, jsonify
-from src.models.user import Users
+from src.models.user import Users, user
 from sqlalchemy import or_
 import bcrypt
 from flask_jwt_extended import (
@@ -99,3 +99,30 @@ def auth_routes(app):
         if not user:
             return jsonify({"error": "User not found"}), 404
         return jsonify(user.serialize()), 200
+
+    @app.route("/user", methods=["PUT"])
+    @jwt_required()
+    def update_user():
+        current_user_id = get_jwt_identity()
+        user = Users.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    data = request.get_json()
+
+    if "username" in data:
+        user.username = data["username"]
+    if "email" in data:
+        user.email = data["email"]
+    if "password" in data:
+        user.password = data["password"]
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "msg": "Usuario actualizado correctamente",
+            "user": {"id": user.id, "username": user.username, "email": user.email},
+        }
+    ), 200
