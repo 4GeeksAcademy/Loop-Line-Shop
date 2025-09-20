@@ -15,8 +15,13 @@ export const UserProvider = ({ children }) => {
   let navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${baseUrl}/me`, {
+    const csrf = sessionStorage.getItem('csrf_access_token');
+
+    fetch(`${baseUrl}/api/me`, {
       credentials: 'include',
+      headers: {
+        'X-CSRF-TOKEN': csrf || '',
+      },
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -29,21 +34,28 @@ export const UserProvider = ({ children }) => {
       });
   }, []);
 
-  const login = (email, password) => {
-    postLogin(email, password).then((data) => {
-      console.log('✅ Login response:', data);
-
+  const login = async (email, password) => {
+    try {
+      const data = await postLogin(email, password);
       if (data?.csrf_token) {
         sessionStorage.setItem('csrf_access_token', data.csrf_token);
       }
-      setUser(data.user);
-      navigate('/');
-    });
+      if (data?.user) {
+        setUser(data.user);
+        sessionStorage.setItem('user_id', data.user.id); // opcional
+        navigate('/');
+      } else {
+        console.error('❌ Login fallido:', data);
+      }
+    } catch (err) {
+      console.error('❌ Error en login:', err);
+    }
   };
 
   const logout = () => {
     postLogout().then(() => {
       setUser({});
+      sessionStorage.removeItem('csrf_access_token');
       navigate('/login');
     });
   };

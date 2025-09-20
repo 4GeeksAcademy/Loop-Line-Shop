@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
@@ -10,10 +9,12 @@ import {
   Typography,
   Badge,
   Button,
+  Divider,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { UserContext } from '../context/User';
+import { CartContext } from '../context/Cart';
 
 export const NavBar = () => {
   const { user, logout } = useContext(UserContext);
@@ -32,6 +33,8 @@ export const NavBar = () => {
     handleClose();
   };
 
+  const { cart } = useContext(CartContext);
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -45,7 +48,7 @@ export const NavBar = () => {
         {/* Carrito */}
         <NavLink to="/cart" style={{ color: 'inherit' }}>
           <IconButton color="inherit">
-            <Badge badgeContent={3} color="secondary">
+            <Badge badgeContent={cart?.items?.length || 0} color="secondary">
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
@@ -77,6 +80,10 @@ export const NavBar = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
+              <MenuItem component={NavLink} to="/orders" onClick={handleClose}>
+                My Orders
+              </MenuItem>
+              <Divider />
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </>

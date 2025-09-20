@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   Typography,
   List,
@@ -13,36 +13,40 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Snackbar,
+  Alert,
+  Box,
 } from '@mui/material';
 import { UserContext } from '../context/User';
-import { getCart } from '../services/api/cart';
+import { CartContext } from '../context/Cart';
 import { checkoutOrder } from '../services/api/checkout';
 import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
   const { user } = useContext(UserContext);
-  const [cart, setCart] = useState({ items: [], total: 0 });
-  const [message, setMessage] = useState('');
+  const { cart, clearCart, fetchCart } = useContext(CartContext);
+
   const [address, setAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user?.id) {
-      (async () => {
-        try {
-          const data = await getCart(user.id);
-          setCart(data);
-        } catch (err) {
-          console.error('❌ Error cargando carrito:', err);
-        }
-      })();
-    }
-  }, [user]);
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleConfirmOrder = async () => {
     if (!address || !paymentMethod) {
-      setMessage('⚠️ Completa dirección y método de pago');
+      setSnackbar({
+        open: true,
+        message: '⚠️ Completa dirección y método de pago',
+        severity: 'warning',
+      });
       return;
     }
 
@@ -51,26 +55,38 @@ export default function Checkout() {
         address,
         payment_method: paymentMethod,
       });
-      setMessage(`🎉 Pedido #${order.id} creado con éxito por $${order.total}`);
-      setCart({ items: [], total: 0 });
-      setAddress('');
-      setPaymentMethod('');
+
+      // Limpia carrito del contexto
+      +(await clearCart());
+
+      setSnackbar({
+        open: true,
+        message: `🎉 Pedido #${order.id} creado con éxito por $${order.total}`,
+        severity: 'success',
+      });
+
+      // Redirigir a OrderConfirmation
       navigate('/order-confirmation', { state: { order } });
     } catch (err) {
-      setMessage('❌ Error al procesar el pedido.');
+      console.error('❌ Error checkout:', err);
+      setSnackbar({
+        open: true,
+        message: '❌ Error al procesar el pedido',
+        severity: 'error',
+      });
     }
   };
 
   if (!user?.id) {
     return (
-      <Typography variant="h6">
+      <Typography variant="h6" sx={{ mt: 4, textAlign: 'center' }}>
         Debes iniciar sesión para confirmar tu pedido
       </Typography>
     );
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '2rem auto' }}>
+    <Box sx={{ maxWidth: 600, margin: '2rem auto' }}>
       <Typography variant="h4" gutterBottom>
         Checkout
       </Typography>
@@ -93,8 +109,8 @@ export default function Checkout() {
         ))}
       </List>
 
-      <Typography variant="h5" sx={{ marginTop: '1rem' }}>
-        Total: ${cart.total}
+      <Typography variant="h5" sx={{ mt: 2 }}>
+        Total: ${cart.total || 0}
       </Typography>
 
       {/* Dirección */}
@@ -103,11 +119,11 @@ export default function Checkout() {
         fullWidth
         value={address}
         onChange={(e) => setAddress(e.target.value)}
-        sx={{ marginTop: '1rem' }}
+        sx={{ mt: 2 }}
       />
 
       {/* Método de pago */}
-      <FormControl fullWidth sx={{ marginTop: '1rem' }}>
+      <FormControl fullWidth sx={{ mt: 2 }}>
         <InputLabel id="payment-method-label">Método de pago</InputLabel>
         <Select
           labelId="payment-method-label"
@@ -126,7 +142,7 @@ export default function Checkout() {
         <Button
           variant="contained"
           color="success"
-          sx={{ marginTop: '1.5rem' }}
+          sx={{ mt: 3 }}
           fullWidth
           onClick={handleConfirmOrder}
         >
@@ -134,12 +150,21 @@ export default function Checkout() {
         </Button>
       )}
 
-      {/* Mensajes */}
-      {message && (
-        <Typography variant="body1" sx={{ marginTop: '1rem' }}>
-          {message}
-        </Typography>
-      )}
-    </div>
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }
