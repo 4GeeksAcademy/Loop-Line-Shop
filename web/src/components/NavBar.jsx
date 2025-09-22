@@ -53,7 +53,8 @@ export const NavBar = () => {
             </Badge>
           </IconButton>
         </NavLink>
-
+        {/* Mi Perfil */}
+        <NavLink to="/Miperfil"></NavLink>
         {/* Menú de usuario */}
         {user && user.user_name ? (
           <>
@@ -69,6 +70,7 @@ export const NavBar = () => {
             >
               <AccountCircle />
             </IconButton>
+
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}

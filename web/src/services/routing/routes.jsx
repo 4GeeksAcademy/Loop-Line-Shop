@@ -1,5 +1,6 @@
 import { Home } from '../../pages/Home';
 import { Login } from '../../pages/Login';
+import { Miperfil } from '../../pages/Miperfil';
 import Cart from '../../components/Cart';
 import Checkout from '../../pages/Checkout';
 
@@ -13,6 +14,11 @@ export const routesConfig = [
     name: 'Login',
     path: '/login',
     component: <Login />,
+  },
+  {
+    name: 'Miperfil',
+    path: '/Miperfil',
+    component: <Miperfil />,
   },
   {
     name: 'Carrito',
