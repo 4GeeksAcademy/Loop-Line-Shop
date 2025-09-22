@@ -10,6 +10,7 @@ import {
   Avatar,
   Divider,
   CircularProgress,
+  Box,
 } from '@mui/material';
 import { getOrders } from '../services/api/orders';
 
@@ -34,39 +35,57 @@ export default function Orders() {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography>Cargando pedidos...</Typography>
+      <Container sx={{ mt: 6, textAlign: 'center', color: '#fff' }}>
+        <CircularProgress sx={{ color: '#D7FF00' }} />
+        <Typography sx={{ mt: 2 }}>Cargando pedidos...</Typography>
       </Container>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <Container sx={{ mt: 4, textAlign: 'center' }}>
+      <Container sx={{ mt: 6, textAlign: 'center', color: '#fff' }}>
         <Typography>No tienes pedidos todavía 🛍️</Typography>
       </Container>
     );
   }
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Container sx={{ mt: 6 }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ color: '#D7FF00', fontWeight: 'bold', textAlign: 'center' }}
+      >
         Mis pedidos
       </Typography>
+
       {orders.map((order) => (
-        <Paper key={order.id} sx={{ p: 2, mb: 3 }}>
-          <Typography variant="h6">Pedido #{order.id}</Typography>
+        <Paper
+          key={order.id}
+          sx={{
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            color: '#fff',
+            border: '2px solid #D7FF00',
+            borderRadius: 3,
+            p: 3,
+            mb: 3,
+            boxShadow: '0 0 20px rgba(215,255,0,0.3)',
+          }}
+        >
+          <Typography variant="h6" sx={{ color: '#D7FF00' }}>
+            Pedido #{order.id}
+          </Typography>
           <Typography variant="body2">
             Fecha: {new Date(order.created_at).toLocaleString()}
           </Typography>
           <Typography>Dirección: {order.address}</Typography>
           <Typography>Método de pago: {order.payment_method}</Typography>
-          <Typography variant="subtitle1" sx={{ mt: 1 }}>
+          <Typography variant="subtitle1" sx={{ mt: 1, color: '#D7FF00' }}>
             Total: ${order.total}
           </Typography>
 
-          <Divider sx={{ my: 1 }} />
+          <Divider sx={{ my: 2, borderColor: '#D7FF00' }} />
 
           <List dense>
             {order.items.map((item) => (
