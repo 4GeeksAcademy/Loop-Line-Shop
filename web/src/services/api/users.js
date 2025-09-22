@@ -3,7 +3,7 @@ import { baseUrl, fetchWrapper } from './config';
 const usersEndpoint = `${baseUrl}favourites`;
 
 export const getCurrentUser = async () => {
-  return await fetchWrapper(`${baseUrl}/api/me`, {
+  return await fetchWrapper(`${baseUrl}/me`, {
     credentials: 'include',
   }).then((data) => {
     return data;

@@ -31,3 +31,5 @@ reset = "bash ./scripts/reset_migrations.sh"
 init="flask --app src/app db init"
 migrate="flask --app src/app db migrate"
 upgrade="flask --app src/app db upgrade"
+
+

@@ -8,24 +8,26 @@ import Orders from './pages/Orders';
 
 export const App = () => {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginRedirect />} />
+    <div className="app-content">
+      <Routes>
+        <Route path="/login" element={<LoginRedirect />} />
 
-      <Route element={<GuardedRoute />}>
-        <Route element={<LayoutWithNavbar />}>
-          {routesConfig.map((route) => (
-            <Route
-              key={route.name}
-              path={route.path}
-              element={route.component}
-            />
-          ))}
+        <Route element={<GuardedRoute />}>
+          <Route element={<LayoutWithNavbar />}>
+            {routesConfig.map((route) => (
+              <Route
+                key={route.name}
+                path={route.path}
+                element={route.component}
+              />
+            ))}
 
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/orders" element={<Orders />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/orders" element={<Orders />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </div>
   );
 };
 

@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
   // 🔹 Función reutilizable para traer al user logeado
   const refreshUser = () => {
     const csrf = sessionStorage.getItem('csrf_access_token');
-    return fetch(`${baseUrl}/api/me`, {
+    return fetch(`${baseUrl}/me`, {
       credentials: 'include',
       headers: { 'X-CSRF-TOKEN': csrf || '' },
     })

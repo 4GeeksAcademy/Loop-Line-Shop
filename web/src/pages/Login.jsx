@@ -3,8 +3,9 @@ import {
   Button,
   Container,
   TextField,
-  FormGroup,
   Typography,
+  Box,
+  Stack,
 } from '@mui/material';
 import { UserContext } from '../context/User';
 
@@ -14,6 +15,7 @@ export const Login = () => {
   const [error, setError] = useState('');
 
   const { login, users } = useContext(UserContext);
+
   const handleSubmit = () => {
     setError('');
 
@@ -35,49 +37,109 @@ export const Login = () => {
   };
 
   return (
-    <Container>
-      <FormGroup className="mb-3" controlId="formBasicEmail">
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        px: 2,
+      }}
+    >
+      <Container
+        maxWidth="sm"
+        sx={{
+          backgroundColor: 'rgba(0,0,0,0.95)', // menos transparencia
+          padding: 5,
+          borderRadius: 3,
+          border: '2px solid #D7FF00',
+          boxShadow: '0 0 25px rgba(215,255,0,0.5)',
+          width: '100%',
+          maxWidth: 480, // 🔥 más ancho
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ mb: 4, color: '#D7FF00', fontWeight: 'bold' }}
+        >
+          Sign In
+        </Typography>
+
         <TextField
           type="email"
           placeholder="Enter email"
           value={email}
           label="Email address"
           onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
-      </FormGroup>
-      <FormGroup className="mb-3" controlId="formBasicPassword">
+
         <TextField
           type="password"
           placeholder="Password"
           label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
-      </FormGroup>
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
-      <Button
-        variant="primary"
-        sx={{
-          background: 'linear-gradient(45deg, #416dffff, #2baeffff)',
-          color: '#fff',
-          fontWeight: 'bold',
-          borderRadius: 2,
-          px: 3,
-          py: 1.5,
-          boxShadow: '0 4px 12px rgba(255,65,108,0.5)',
-          '&:hover': {
-            background: 'linear-gradient(45deg, #ff4b2b, #ff416c)',
-            transform: 'scale(1.05)',
-          },
-        }}
-        onClick={handleSubmit}
-      >
-        Submit
-      </Button>
-    </Container>
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2, fontWeight: 'bold' }}>
+            {error}
+          </Typography>
+        )}
+
+        <Button
+          fullWidth
+          onClick={handleSubmit}
+          sx={{
+            mb: 2,
+            bgcolor: '#D7FF00',
+            color: '#000',
+            fontWeight: 'bold',
+            borderRadius: 2,
+            py: 1.5,
+            '&:hover': { bgcolor: '#c6f500' },
+          }}
+        >
+          Login
+        </Button>
+
+        {/* Extras: Register y Forgot Password */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          sx={{ mt: 2, color: '#D7FF00' }}
+        >
+          <Button variant="text" sx={{ color: '#D7FF00', fontWeight: 'bold' }}>
+            Register
+          </Button>
+          <Button variant="text" sx={{ color: '#D7FF00', fontWeight: 'bold' }}>
+            Forgot Password?
+          </Button>
+        </Stack>
+      </Container>
+    </Box>
   );
 };

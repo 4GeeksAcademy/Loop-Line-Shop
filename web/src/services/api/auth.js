@@ -2,7 +2,7 @@ import { baseUrl, fetchWrapper } from './config';
 
 // Registro
 export const postRegister = async (username, email, password) => {
-  return fetchWrapper(`${baseUrl}/api/register`, {
+  return fetchWrapper(`${baseUrl}/register`, {
     method: 'POST',
     body: JSON.stringify({ user_name: username, email, password }),
   });
@@ -10,7 +10,7 @@ export const postRegister = async (username, email, password) => {
 
 // Login
 export const postLogin = async (email, password) => {
-  return fetchWrapper(`${baseUrl}/api/login`, {
+  return fetchWrapper(`${baseUrl}/login`, {
     method: 'POST',
     //sheaders: {"Access-Control-Allow-Origin":"*"},
     body: JSON.stringify({ email, password }),
@@ -25,7 +25,7 @@ export const postLogin = async (email, password) => {
 
 // Logout
 export const postLogout = async () => {
-  return fetchWrapper(`${baseUrl}/api/logout`, {
+  return fetchWrapper(`${baseUrl}/logout`, {
     method: 'POST',
   });
 };

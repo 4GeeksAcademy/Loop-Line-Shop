@@ -1,146 +1,117 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import {
+  Drawer,
   Typography,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  ListItemAvatar,
-  Avatar,
   Divider,
-  IconButton,
+  Box,
   Button,
+  Avatar,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { UserContext } from '../context/User';
-import { getCart, deleteCartItem, updateCartItem } from '../services/api/cart';
+import { CartContext } from '../context/Cart';
 import { useNavigate } from 'react-router-dom';
 
-export default function Cart() {
-  const { user } = useContext(UserContext);
-  const [cart, setCart] = useState({ items: [], total: 0 });
+export default function Cart({ open, onClose }) {
+  const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
   const navigate = useNavigate();
 
-  // 🔄 función para recargar el carrito
-  const fetchCart = async () => {
-    if (user?.id) {
-      try {
-        const data = await getCart(user.id);
-        setCart(data);
-      } catch (err) {
-        console.error('Error cargando carrito:', err);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchCart();
-  }, [user]);
-
-  // 🗑️ borrar item
-  const handleDelete = async (itemId) => {
-    try {
-      await deleteCartItem(itemId);
-      fetchCart();
-    } catch (err) {
-      console.error('Error eliminando producto:', err);
-    }
-  };
-
-  // 🔄 actualizar cantidad
-  const handleUpdateQuantity = async (itemId, newQuantity) => {
-    if (newQuantity < 1) return;
-    try {
-      await updateCartItem(itemId, newQuantity);
-      fetchCart();
-    } catch (err) {
-      console.error('Error actualizando cantidad:', err);
-    }
-  };
-
-  if (!user?.id) {
-    return (
-      <Typography variant="h6">
-        Debes iniciar sesión para ver tu carrito
-      </Typography>
-    );
-  }
-
   return (
-    <div style={{ maxWidth: 600, margin: '2rem auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Mi Carrito
-      </Typography>
-      <List>
-        {cart.items.map((item) => (
-          <div key={item.id}>
-            <ListItem
-              secondaryAction={
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              }
-            >
-              <ListItemAvatar>
-                <Avatar src={item.image} alt={item.name} />
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <span>{item.name}</span>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() =>
-                        handleUpdateQuantity(item.id, item.quantity - 1)
-                      }
-                    >
-                      -
-                    </Button>
-                    <span>{item.quantity}</span>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() =>
-                        handleUpdateQuantity(item.id, item.quantity + 1)
-                      }
-                    >
-                      +
-                    </Button>
-                  </div>
-                }
-                secondary={`Precio unitario: $${item.price} | Subtotal: $${item.subtotal}`}
-              />
-            </ListItem>
-            <Divider />
-          </div>
-        ))}
-      </List>
-      <Typography variant="h5" sx={{ marginTop: '1rem' }}>
-        Total: ${cart.total}
-      </Typography>
+    <Drawer anchor="right" open={open} onClose={onClose}>
+      <Box
+        sx={{
+          width: 350,
+          bgcolor: '#000',
+          color: '#D7FF00',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Header */}
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant="h6">My Cart</Typography>
+          <IconButton onClick={onClose} sx={{ color: '#D7FF00' }}>
+            ✕
+          </IconButton>
+        </Box>
 
-      {/* 🚀 Botón para ir al checkout */}
-      {cart.items.length > 0 && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginTop: '1.5rem' }}
-          fullWidth
-          onClick={() => navigate('/checkout')}
-        >
-          Proceder al Checkout
-        </Button>
-      )}
-    </div>
+        <Divider sx={{ bgcolor: '#D7FF00' }} />
+
+        {/* Cart Items */}
+        <List sx={{ flex: 1, overflowY: 'auto' }}>
+          {cart.items.length > 0 ? (
+            cart.items.map((item) => (
+              <ListItem
+                key={item.id}
+                sx={{
+                  bgcolor: '#111',
+                  borderRadius: '8px',
+                  mb: 1,
+                  px: 2,
+                  py: 1,
+                }}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    onClick={() => removeFromCart(item.id)}
+                    sx={{ color: '#D7FF00' }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <Avatar
+                  src={item.image}
+                  alt={item.name}
+                  sx={{ marginRight: 2 }}
+                />
+                <ListItemText
+                  primary={
+                    <Typography sx={{ color: '#fff', fontWeight: 'bold' }}>
+                      {item.name} x{item.quantity}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography sx={{ color: '#D7FF00', fontWeight: 'bold' }}>
+                      ${item.subtotal}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            ))
+          ) : (
+            <Typography sx={{ p: 2 }}>Your cart is empty</Typography>
+          )}
+        </List>
+
+        {/* Footer */}
+        <Box sx={{ p: 2, borderTop: '1px solid #D7FF00' }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Total: ${cart.total}
+          </Typography>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              onClose();
+              navigate('/checkout');
+            }}
+            sx={{
+              bgcolor: '#D7FF00',
+              color: '#000',
+              fontWeight: 'bold',
+              '&:hover': { bgcolor: '#c6f500' },
+            }}
+          >
+            Checkout
+          </Button>
+        </Box>
+      </Box>
+    </Drawer>
   );
 }
