@@ -12,11 +12,12 @@ export const postRegister = async (username, email, password) => {
 export const postLogin = async (email, password) => {
   return fetchWrapper(`${baseUrl}/api/login`, {
     method: 'POST',
+    //sheaders: {"Access-Control-Allow-Origin":"*"},
     body: JSON.stringify({ email, password }),
   }).then((data) => {
     if (data?.acces_token) {
-      //sessionStorage.setItem("csrf_access_token", data.csrf_token);
-      localStorage.setItem('token', data.access_token);
+      sessionStorage.setItem('csrf_access_token', data.csrf_token);
+      //localStorage.setItem('token', data.access_token);
     }
     return data;
   });
