@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from src.models.cart import CartItem
 from src.db import db
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import requests
-import os
 
 cart = Blueprint("cart", __name__)
 
@@ -11,9 +11,10 @@ PLATZI_API = "https://api.escuelajs.co/api/v1/products"
 
 # Añadir producto al carrito
 @cart.route("/cart", methods=["POST"])
+@jwt_required()
 def add_to_cart():
+    user_id = get_jwt_identity()
     data = request.get_json()
-    user_id = data.get("user_id")
     product_id = data.get("product_id")
     quantity = data.get("quantity", 1)
 
@@ -22,6 +23,14 @@ def add_to_cart():
     if r.status_code != 200:
         return jsonify({"error": "Producto no encontrado"}), 404
 
+    existing_item = CartItem.query.filter_by(
+        user_id=user_id, product_id=product_id
+    ).first()
+    if existing_item:
+        existing_item.quantity += quantity
+        db.session.commit()
+        return jsonify(existing_item.serialize()), 200
+
     item = CartItem(user_id=user_id, product_id=product_id, quantity=quantity)
     db.session.add(item)
     db.session.commit()
@@ -29,10 +38,11 @@ def add_to_cart():
     return jsonify(item.serialize()), 201
 
 
-# Ver carrito de un usuario
+# Ver carrito del usuario logueado
 @cart.route("/cart", methods=["GET"])
+@jwt_required()
 def get_cart():
-    user_id = request.args.get("user_id")
+    user_id = get_jwt_identity()
     items = CartItem.query.filter_by(user_id=user_id).all()
 
     result = []
@@ -58,33 +68,35 @@ def get_cart():
     return jsonify({"items": result, "total": total}), 200
 
 
-# PUT /api/cart/<item_id> → actualizar cantidad
+# Actualizar cantidad
 @cart.route("/cart/<int:item_id>", methods=["PUT"])
+@jwt_required()
 def update_cart_item(item_id):
+    user_id = get_jwt_identity()
     data = request.get_json()
     new_quantity = data.get("quantity")
 
     if new_quantity is None or new_quantity < 1:
         return jsonify({"error": "Cantidad inválida"}), 400
 
-    item = CartItem.query.get(item_id)
+    item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
     if not item:
         return jsonify({"error": "Item no encontrado"}), 404
 
     item.quantity = new_quantity
     db.session.commit()
-
     return jsonify(item.serialize()), 200
 
 
-# DELETE /api/cart/<item_id> → eliminar producto del carrito
+# Eliminar producto
 @cart.route("/cart/<int:item_id>", methods=["DELETE"])
+@jwt_required()
 def delete_cart_item(item_id):
-    item = CartItem.query.get(item_id)
+    user_id = get_jwt_identity()
+    item = CartItem.query.filter_by(id=item_id, user_id=user_id).first()
     if not item:
         return jsonify({"error": "Item no encontrado"}), 404
 
     db.session.delete(item)
     db.session.commit()
-
     return jsonify({"message": "Item eliminado"}), 200

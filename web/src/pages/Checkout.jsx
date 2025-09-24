@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   Typography,
   List,
@@ -9,137 +9,193 @@ import {
   Divider,
   Button,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Snackbar,
+  Alert,
+  Box,
+  Paper,
+  CircularProgress,
 } from '@mui/material';
 import { UserContext } from '../context/User';
-import { getCart } from '../services/api/cart';
+import { CartContext } from '../context/Cart';
 import { checkoutOrder } from '../services/api/checkout';
 import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
   const { user } = useContext(UserContext);
-  const [cart, setCart] = useState({ items: [], total: 0 });
-  const [message, setMessage] = useState('');
+  const { cart, clearCart } = useContext(CartContext);
+
   const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user?.id) {
-      (async () => {
-        try {
-          const data = await getCart(user.id);
-          setCart(data);
-        } catch (err) {
-          console.error('❌ Error cargando carrito:', err);
-        }
-      })();
-    }
-  }, [user]);
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleConfirmOrder = async () => {
-    if (!address || !paymentMethod) {
-      setMessage('⚠️ Completa dirección y método de pago');
+    if (!address) {
+      setSnackbar({
+        open: true,
+        message: '⚠️ Completa dirección de envío',
+        severity: 'warning',
+      });
       return;
     }
 
     try {
+      setLoading(true);
+
+      // ⏳ Simular espera de pasarela
+      await new Promise((res) => setTimeout(res, 1500));
+
       const order = await checkoutOrder({
         address,
-        payment_method: paymentMethod,
+        payment_method: 'credit_card', // 🔥 hardcodeado
       });
-      setMessage(`🎉 Pedido #${order.id} creado con éxito por $${order.total}`);
-      setCart({ items: [], total: 0 });
-      setAddress('');
-      setPaymentMethod('');
+
+      await clearCart();
+
+      setSnackbar({
+        open: true,
+        message: `🎉 Pedido #${order.id} creado con éxito por $${order.total}`,
+        severity: 'success',
+      });
+
       navigate('/order-confirmation', { state: { order } });
     } catch (err) {
-      setMessage('❌ Error al procesar el pedido.');
+      console.error('❌ Error checkout:', err);
+      setSnackbar({
+        open: true,
+        message: '❌ Error al procesar el pedido',
+        severity: 'error',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   if (!user?.id) {
     return (
-      <Typography variant="h6">
+      <Typography variant="h6" sx={{ mt: 4, textAlign: 'center' }}>
         Debes iniciar sesión para confirmar tu pedido
       </Typography>
     );
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '2rem auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Checkout
-      </Typography>
-
-      {/* Carrito */}
-      <List>
-        {cart.items.map((item) => (
-          <div key={item.id}>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar src={item.image} alt={item.name} />
-              </ListItemAvatar>
-              <ListItemText
-                primary={`${item.name} x ${item.quantity}`}
-                secondary={`Subtotal: $${item.subtotal}`}
-              />
-            </ListItem>
-            <Divider />
-          </div>
-        ))}
-      </List>
-
-      <Typography variant="h5" sx={{ marginTop: '1rem' }}>
-        Total: ${cart.total}
-      </Typography>
-
-      {/* Dirección */}
-      <TextField
-        label="Dirección de envío"
-        fullWidth
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        sx={{ marginTop: '1rem' }}
-      />
-
-      {/* Método de pago */}
-      <FormControl fullWidth sx={{ marginTop: '1rem' }}>
-        <InputLabel id="payment-method-label">Método de pago</InputLabel>
-        <Select
-          labelId="payment-method-label"
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        p: 4,
+      }}
+    >
+      <Paper
+        sx={{
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          color: '#fff',
+          border: '2px solid #D7FF00',
+          borderRadius: 3,
+          p: 4,
+          width: '100%',
+          maxWidth: 600,
+          boxShadow: '0 0 25px rgba(215,255,0,0.4)',
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ color: '#D7FF00', fontWeight: 'bold', textAlign: 'center' }}
         >
-          <MenuItem value="">Selecciona método</MenuItem>
-          <MenuItem value="credit_card">Tarjeta</MenuItem>
-          <MenuItem value="paypal">PayPal</MenuItem>
-          <MenuItem value="bank_transfer">Transferencia</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* Botón confirmar */}
-      {cart.items.length > 0 && (
-        <Button
-          variant="contained"
-          color="success"
-          sx={{ marginTop: '1.5rem' }}
-          fullWidth
-          onClick={handleConfirmOrder}
-        >
-          Confirmar pedido
-        </Button>
-      )}
-
-      {/* Mensajes */}
-      {message && (
-        <Typography variant="body1" sx={{ marginTop: '1rem' }}>
-          {message}
+          Checkout
         </Typography>
-      )}
-    </div>
+
+        {/* 🛒 Carrito */}
+        <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+          Carrito
+        </Typography>
+        <List>
+          {cart.items.map((item) => (
+            <div key={item.id}>
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar src={item.image} alt={item.name} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={`${item.name} x ${item.quantity}`}
+                  secondary={`Subtotal: $${item.subtotal}`}
+                  sx={{ color: '#D7FF00' }}
+                />
+              </ListItem>
+              <Divider />
+            </div>
+          ))}
+        </List>
+        <Typography variant="h5" sx={{ mt: 2, color: '#D7FF00' }}>
+          Total: ${cart.total || 0}
+        </Typography>
+
+        {/* 🚚 Dirección */}
+        <TextField
+          label="Dirección de envío"
+          fullWidth
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          sx={{
+            mt: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root fieldset': { borderColor: '#D7FF00' },
+          }}
+        />
+
+        {/* ✅ Confirmar */}
+        {cart.items.length > 0 && (
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={handleConfirmOrder}
+            disabled={loading}
+            sx={{
+              mt: 4,
+              bgcolor: '#D7FF00',
+              color: '#000',
+              fontWeight: 'bold',
+              '&:hover': { bgcolor: '#c6f500' },
+            }}
+          >
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              'Confirmar pedido'
+            )}
+          </Button>
+        )}
+
+        {/* Snackbar */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Paper>
+    </Box>
   );
 }

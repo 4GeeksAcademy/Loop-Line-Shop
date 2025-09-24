@@ -14,36 +14,58 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState({});
   let navigate = useNavigate();
 
-  useEffect(() => {
-    fetch(`${baseUrl}/me`, {
+  // 🔹 Función reutilizable para traer al user logeado
+  const refreshUser = () => {
+    const csrf = sessionStorage.getItem('csrf_access_token');
+    return fetch(`${baseUrl}/me`, {
       credentials: 'include',
+      headers: { 'X-CSRF-TOKEN': csrf || '' },
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.email) {
           setUser(data);
+        } else {
+          setUser({});
         }
       })
-      .catch((err) => {
-        console.error('❌ Error en /me:', err);
-      });
+      .catch(() => setUser({}));
+  };
+
+  // 🔹 Solo refrescar user si ya hay cookie al montar la app
+  useEffect(() => {
+    const csrf = sessionStorage.getItem('csrf_access_token');
+    if (csrf) {
+      refreshUser();
+    }
   }, []);
 
-  const login = (email, password) => {
-    postLogin(email, password).then((data) => {
-      console.log('✅ Login response:', data);
+  const login = async (email, password) => {
+    try {
+      const data = await postLogin(email, password);
 
       if (data?.csrf_token) {
         sessionStorage.setItem('csrf_access_token', data.csrf_token);
       }
-      setUser(data.user);
-      navigate('/');
-    });
+
+      if (data?.user) {
+        setUser(data.user);
+        sessionStorage.setItem('user_id', data.user.id);
+        // ✅ Después de login exitoso refrescamos desde /me
+        await refreshUser();
+        navigate('/');
+      } else {
+        console.error('❌ Login fallido:', data);
+      }
+    } catch (err) {
+      console.error('❌ Error en login:', err);
+    }
   };
 
   const logout = () => {
     postLogout().then(() => {
       setUser({});
+      sessionStorage.removeItem('csrf_access_token');
       navigate('/login');
     });
   };

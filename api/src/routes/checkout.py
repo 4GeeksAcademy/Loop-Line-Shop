@@ -4,6 +4,7 @@ from src.models.cart import CartItem
 from src.models.order import Order, OrderItem
 from src.db import db
 import requests
+import os
 
 checkout = Blueprint("checkout", __name__)
 
@@ -14,17 +15,20 @@ PLATZI_API = "https://api.escuelajs.co/api/v1/products"
 @jwt_required()
 def create_order():
     data = request.get_json()
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
+    print("🔎 DEBUG checkout:")
+    print("data:", data)
+    print("user_id from JWT:", user_id)
+
     address = data.get("address")
     payment_method = data.get("payment_method")
 
-    # Validaciones
     if not user_id:
         return jsonify({"error": "Falta user_id"}), 400
     if not address or not payment_method:
         return jsonify({"error": "Faltan datos de envío o método de pago"}), 400
 
-    # Traer los items del carrito
+    # 🔴 Checkout real
     items = CartItem.query.filter_by(user_id=user_id).all()
     if not items:
         return jsonify({"error": "Carrito vacío"}), 400
@@ -33,7 +37,6 @@ def create_order():
     order_items = []
 
     for ci in items:
-        # Obtener info del producto desde la API de Platzi
         r = requests.get(f"{PLATZI_API}/{ci.product_id}")
         if r.status_code != 200:
             return jsonify({"error": f"Producto {ci.product_id} no encontrado"}), 404
@@ -53,7 +56,6 @@ def create_order():
             }
         )
 
-    # Crear la orden
     order = Order(
         user_id=user_id,
         address=address,
@@ -62,9 +64,8 @@ def create_order():
         status="confirmed",
     )
     db.session.add(order)
-    db.session.flush()  # genera order.id antes del commit
+    db.session.flush()
 
-    # Crear los items asociados
     for oi in order_items:
         db.session.add(
             OrderItem(
@@ -77,7 +78,6 @@ def create_order():
             )
         )
 
-    # Vaciar carrito
     CartItem.query.filter_by(user_id=user_id).delete()
     db.session.commit()
 

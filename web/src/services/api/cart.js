@@ -1,31 +1,29 @@
-import axios from 'axios';
+import { baseUrl, fetchWrapper } from './config';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
-export const addToCart = async (userId, productId, quantity = 1) => {
-  const { data } = await axios.post(`${API_URL}/cart`, {
-    user_id: userId,
-    product_id: productId,
-    quantity,
-  });
-  return data;
+// GET: obtener carrito
+export const getCart = async () => {
+  return fetchWrapper(`${baseUrl}/cart`, { method: 'GET' });
 };
 
-export const getCart = async (userId) => {
-  const { data } = await axios.get(`${API_URL}/cart`, {
-    params: { user_id: userId },
+// POST: añadir producto al carrito
+export const addToCart = async (productId, quantity = 1) => {
+  return fetchWrapper(`${baseUrl}/cart`, {
+    method: 'POST',
+    body: JSON.stringify({ product_id: productId, quantity }),
   });
-  return data;
 };
 
-//DELETE producto del carrito
+// DELETE: eliminar producto del carrito
 export const deleteCartItem = async (itemId) => {
-  const { data } = await axios.delete(`${API_URL}/cart/${itemId}`);
-  return data;
+  return fetchWrapper(`${baseUrl}/cart/${itemId}`, {
+    method: 'DELETE',
+  });
 };
 
-//PUT actualizar cantidad de producto en carrito
+// PUT: actualizar cantidad de producto
 export const updateCartItem = async (itemId, quantity) => {
-  const { data } = await axios.put(`${API_URL}/cart/${itemId}`, { quantity });
-  return data;
+  return fetchWrapper(`${baseUrl}/cart/${itemId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ quantity }),
+  });
 };

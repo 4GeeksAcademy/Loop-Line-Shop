@@ -1,7 +1,6 @@
 import os
 import time
 from src.utils import generate_sitemap
-from src.routes.auth import auth_routes
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_migrate import Migrate
@@ -9,8 +8,13 @@ from src.db import db
 from src.admin.setup_admin import setup_admin
 from flask_cors import CORS
 from src.routes.product import product_routes
+
+# Blueprints
+from src.routes.auth import auth
 from src.routes.cart import cart
 from src.routes.checkout import checkout
+from src.routes.order import orders
+from src.routes.debug import debug
 
 
 from flask_jwt_extended import (
@@ -19,11 +23,7 @@ from flask_jwt_extended import (
 
 load_dotenv()
 app = Flask(__name__)
-CORS(
-    app,
-    supports_credentials=True,
-    origins=["http://localhost:5173", "https://*.github.dev"],
-)
+CORS(app, supports_credentials=True, origins="*")
 start_time = time.time()
 
 db_url = os.getenv("DATABASE_URL")
@@ -42,7 +42,7 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 app.config["JWT_CSRF_IN_COOKIES"] = True
-app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_COOKIE_SECURE"] = True
 app.config["JWT_CSRF_CHECK_FORM"] = True
 
 jwt = JWTManager(app)
@@ -50,7 +50,6 @@ jwt = JWTManager(app)
 MIGRATE = Migrate(app, db)
 db.init_app(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-CORS(app, supports_credentials=True)
 
 
 @app.route("/")
@@ -63,15 +62,12 @@ def health_check():
     return jsonify({"status": "ok", "uptime": round(time.time() - start_time, 2)}), 200
 
 
-auth_routes(app)
+app.register_blueprint(auth, url_prefix="")
 product_routes(app)
-app.register_blueprint(cart)
-app.register_blueprint(checkout)
-
-# 🔍 Debug: ver todas las rutas registradas
-with app.app_context():
-    print("🔎 Rutas registradas en Flask:")
-    print(app.url_map)
+app.register_blueprint(cart, url_prefix="")
+app.register_blueprint(checkout, url_prefix="")
+app.register_blueprint(orders, url_prefix="")
+app.register_blueprint(debug, url_prefix="/api")
 
 
 if __name__ == "__main__":
