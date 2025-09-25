@@ -1,10 +1,11 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import {
   getCart,
   addToCart as apiAddToCart,
   deleteCartItem,
   updateCartItem,
 } from '../services/api/cart';
+import { UserContext } from './User';
 
 export const CartContext = createContext({
   cart: { items: [] },
@@ -17,24 +18,26 @@ export const CartContext = createContext({
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [] });
-
-  useEffect(() => {
-    fetchCart();
-  }, []);
+  const { user } = useContext(UserContext);
 
   const fetchCart = async () => {
+    if (!user?.id) return;
     try {
-      const data = await getCart();
+      const data = await getCart(user.id);
       setCart(data);
     } catch (err) {
       console.error('❌ Error al cargar el carrito:', err);
     }
   };
 
+  useEffect(() => {
+    fetchCart();
+  }, [user]);
+
   const addToCart = async (productId, quantity = 1) => {
     try {
       await apiAddToCart(productId, quantity);
-      await fetchCart(); // refresca carrito
+      await fetchCart();
     } catch (err) {
       console.error('❌ Error al añadir al carrito:', err);
     }
@@ -51,7 +54,6 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      // puedes crear un endpoint /cart/clear o iterar items
       for (const item of cart.items) {
         await deleteCartItem(item.id);
       }
@@ -62,6 +64,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = async (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
     try {
       await updateCartItem(itemId, newQuantity);
       await fetchCart();

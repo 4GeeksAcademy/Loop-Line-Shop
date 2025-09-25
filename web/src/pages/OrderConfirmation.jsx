@@ -10,6 +10,7 @@ import {
   Button,
   Container,
   Paper,
+  Box,
 } from '@mui/material';
 
 export default function OrderConfirmation() {
@@ -19,15 +20,20 @@ export default function OrderConfirmation() {
 
   if (!order) {
     return (
-      <Container sx={{ mt: 4, textAlign: 'center' }}>
+      <Container sx={{ mt: 6, textAlign: 'center', color: '#fff' }}>
         <Typography variant="h6" gutterBottom>
           ⚠️ No hay datos de pedido para mostrar.
         </Typography>
         <Button
           variant="contained"
-          color="primary"
+          sx={{
+            mt: 2,
+            bgcolor: '#D7FF00',
+            color: '#000',
+            fontWeight: 'bold',
+            '&:hover': { bgcolor: '#c6f500' },
+          }}
           onClick={() => navigate('/orders')}
-          sx={{ mt: 2 }}
         >
           Ver mis pedidos
         </Button>
@@ -36,23 +42,48 @@ export default function OrderConfirmation() {
   }
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        mt: 6,
+      }}
+    >
+      <Paper
+        sx={{
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          color: '#fff',
+          border: '2px solid #D7FF00',
+          borderRadius: 3,
+          p: 4,
+          width: '100%',
+          maxWidth: 700,
+          boxShadow: '0 0 25px rgba(215,255,0,0.4)',
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ color: '#D7FF00', fontWeight: 'bold', textAlign: 'center' }}
+        >
           ✅ Pedido confirmado
         </Typography>
-        <Typography variant="h6">Pedido #{order.id}</Typography>
+
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Pedido #{order.id}
+        </Typography>
         <Typography variant="body2">
           Fecha: {new Date(order.created_at).toLocaleString()}
         </Typography>
         <Typography>Dirección: {order.address}</Typography>
         <Typography>Método de pago: {order.payment_method}</Typography>
-        <Typography sx={{ mt: 2 }} variant="h6">
+        <Typography sx={{ mt: 2, color: '#D7FF00' }} variant="h6">
           Total: ${order.total}
         </Typography>
 
-        <Divider sx={{ my: 2 }} />
-        <Typography variant="h5" gutterBottom>
+        <Divider sx={{ my: 2, borderColor: '#D7FF00' }} />
+
+        <Typography variant="h5" gutterBottom sx={{ color: '#D7FF00' }}>
           Resumen de productos:
         </Typography>
         <List>
@@ -67,30 +98,41 @@ export default function OrderConfirmation() {
                   secondary={`$${item.unit_price} c/u — Subtotal: $${item.subtotal}`}
                 />
               </ListItem>
-              <Divider />
+              <Divider sx={{ borderColor: 'rgba(215,255,0,0.2)' }} />
             </div>
           ))}
         </List>
 
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 3 }}
-          onClick={() => navigate('/orders')}
-        >
-          Ver mis pedidos
-        </Button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              bgcolor: '#D7FF00',
+              color: '#000',
+              fontWeight: 'bold',
+              '&:hover': { bgcolor: '#c6f500' },
+            }}
+            onClick={() => navigate('/orders')}
+          >
+            Ver mis pedidos
+          </Button>
 
-        <Button
-          variant="outlined"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={() => navigate('/')}
-        >
-          Volver a la tienda
-        </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{
+              borderColor: '#D7FF00',
+              color: '#D7FF00',
+              fontWeight: 'bold',
+              '&:hover': { borderColor: '#c6f500', color: '#c6f500' },
+            }}
+            onClick={() => navigate('/')}
+          >
+            Volver a la tienda
+          </Button>
+        </Box>
       </Paper>
-    </Container>
+    </Box>
   );
 }
