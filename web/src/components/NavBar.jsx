@@ -53,9 +53,8 @@ export const NavBar = () => {
             </Badge>
           </IconButton>
         </NavLink>
-        {/* Mi Perfil */}
-        <NavLink to="/Miperfil"></NavLink>
         {/* Menú de usuario */}
+        <NavLink to="/Miperfil"></NavLink>
         {user && user.user_name ? (
           <>
             <Typography variant="body1" sx={{ marginRight: 2 }}>

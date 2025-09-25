@@ -42,10 +42,41 @@ export const Miperfil = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos de perfil:', formData);
-    // lógica para guardar cambios (API, backend)
+
+    try {
+      const data = new FormData();
+      data.append('nombre', formData.nombre);
+      data.append('email', formData.email);
+      data.append('direccion', formData.direccion);
+      data.append('codigoPostal', formData.codigoPostal);
+      data.append('region', formData.region);
+      if (formData.foto) data.append('foto', formData.foto);
+
+      const response = await fetch(
+        'https://fluffy-lamp-r4w5pp5496p6h5r4j-5000.app.github.dev/',
+        {
+          method: 'PUT',
+          body: data,
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token'),
+          },
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Perfil actualizado:', result);
+        alert('Perfil actualizado correctamente ✅');
+      } else {
+        console.error('Error al actualizar:', result);
+        alert('❌ Error al actualizar perfil');
+      }
+    } catch (error) {
+      console.error('Error en la petición:', error);
+      alert('⚠️ Error en la conexión con el servidor');
+    }
   };
 
   return (
