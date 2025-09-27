@@ -3,7 +3,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.models.cart import CartItem
 from src.models.order import Order, OrderItem
 from src.db import db
-import requests
 import os
 
 checkout = Blueprint("checkout", __name__)
@@ -37,7 +36,7 @@ def create_order():
     order_items = []
 
     for ci in items:
-        r = requests.get(f"{PLATZI_API}/{ci.product_id}")
+        r = request.get(f"{PLATZI_API}/{ci.product_id}")
         if r.status_code != 200:
             return jsonify({"error": f"Producto {ci.product_id} no encontrado"}), 404
 
