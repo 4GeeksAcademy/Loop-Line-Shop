@@ -10,12 +10,13 @@ def product_routes(app):
             data.raise_for_status()
             products = data.json()
 
-            categories = {20, 23, 41}
+            categories = {"Clothes", "Shoes"}
 
             products_allowed = [
                 product
                 for product in products
-                if "category" in product and product["category"].get("id") in categories
+                if "category" in product
+                and product["category"].get("name") in categories
             ]
 
             return jsonify(products_allowed), 200
