@@ -12,7 +12,7 @@ class Users(db.Model):
     password_hash: Mapped[str] = mapped_column(VARCHAR(60), nullable=False)
     email: Mapped[str] = mapped_column(String(50), nullable=False)
     role: Mapped[str] = mapped_column(String(50), default="user", nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    # created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     def __repr__(self):
         return f"<User {self.user_name}>"

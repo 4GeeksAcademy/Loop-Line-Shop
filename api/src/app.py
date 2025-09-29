@@ -13,7 +13,6 @@ from src.routes.auth import auth
 from src.routes.cart import cart
 from src.routes.checkout import checkout
 from src.routes.order import orders
-from src.routes.debug import debug
 
 
 from flask_jwt_extended import (
@@ -65,7 +64,6 @@ app.register_blueprint(auth, url_prefix="")
 app.register_blueprint(cart, url_prefix="")
 app.register_blueprint(checkout, url_prefix="")
 app.register_blueprint(orders, url_prefix="")
-app.register_blueprint(debug, url_prefix="/api")
 
 
 if __name__ == "__main__":
