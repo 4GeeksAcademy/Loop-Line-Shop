@@ -68,7 +68,10 @@ export const NavBar = () => {
               </Typography>
             </Box>
           </NavLink>
-
+          <NavLink
+            to="/perfil"
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          ></NavLink>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* Carrito → solo mostrar si hay user logeado */}
             {user?.id && (
@@ -117,6 +120,16 @@ export const NavBar = () => {
                     </Typography>
                   </MenuItem>
                   <Divider sx={{ bgcolor: '#D7FF00' }} />
+                  <MenuItem
+                    component={NavLink}
+                    to="/perfil"
+                    onClick={handleClose}
+                    sx={{
+                      '&:hover': { backgroundColor: '#D7FF00', color: '#000' },
+                    }}
+                  >
+                    Profile
+                  </MenuItem>
                   <MenuItem
                     component={NavLink}
                     to="/orders"
