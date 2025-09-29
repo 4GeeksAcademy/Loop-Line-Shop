@@ -1,3 +1,4 @@
+import requests
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.models.cart import CartItem
@@ -36,7 +37,7 @@ def create_order():
     order_items = []
 
     for ci in items:
-        r = request.get(f"{PLATZI_API}/{ci.product_id}")
+        r = requests.get(f"{PLATZI_API}/{ci.product_id}")
         if r.status_code != 200:
             return jsonify({"error": f"Producto {ci.product_id} no encontrado"}), 404
 

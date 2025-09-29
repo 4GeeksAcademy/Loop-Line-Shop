@@ -1,3 +1,4 @@
+import requests
 from flask import Blueprint, request, jsonify
 from src.models.cart import CartItem
 from src.db import db
@@ -19,7 +20,7 @@ def add_to_cart():
     quantity = data.get("quantity", 1)
 
     # Validar que el producto exista en Platzi API
-    r = request.get(f"{PLATZI_API}/{product_id}")
+    r = requests.get(f"{PLATZI_API}/{product_id}")
     if r.status_code != 200:
         return jsonify({"error": "Producto no encontrado"}), 404
 
@@ -47,7 +48,7 @@ def get_cart():
 
     result = []
     for item in items:
-        r = request.get(f"{PLATZI_API}/{item.product_id}")
+        r = requests.get(f"{PLATZI_API}/{item.product_id}")
         if r.status_code == 200:
             product = r.json()
             result.append(
