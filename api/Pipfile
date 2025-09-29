@@ -7,7 +7,6 @@ name = "pypi"
 flask = "*"
 sqlalchemy = "*"
 gunicorn = "*"
-flask-migrate = "*"
 flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 flask-cors = "*"
@@ -18,6 +17,7 @@ cloudinary = "*"
 flask-admin = "*"
 requests = "*"
 datetime = "*"
+flask-migrate = "*"
 
 [dev-packages]
 
@@ -31,5 +31,3 @@ reset = "bash ./scripts/reset_migrations.sh"
 init="flask --app src/app db init"
 migrate="flask --app src/app db migrate"
 upgrade="flask --app src/app db upgrade"
-
-
