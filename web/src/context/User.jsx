@@ -12,34 +12,42 @@ export const UserContext = createContext({
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState({});
-  let navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // 🔹 Función reutilizable para traer al user logeado
-  const refreshUser = () => {
-    const csrf = sessionStorage.getItem('csrf_access_token');
-    return fetch(`${baseUrl}/me`, {
-      credentials: 'include',
-      headers: { 'X-CSRF-TOKEN': csrf || '' },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+  // 🔹 Función reutilizable para traer al user logueado
+  const refreshUser = async () => {
+    try {
+      const csrf = sessionStorage.getItem('csrf_access_token');
+      const res = await fetch(`${baseUrl}/me`, {
+        credentials: 'include', // ✅ incluye cookies
+        headers: { 'X-CSRF-TOKEN': csrf || '' },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
         if (data?.email) {
           setUser(data);
         } else {
           setUser({});
         }
-      })
-      .catch(() => setUser({}));
+      } else {
+        setUser({});
+      }
+    } catch (err) {
+      console.error('❌ Error al refrescar user:', err);
+      setUser({});
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 🔹 Solo refrescar user si ya hay cookie al montar la app
+  // 🔹 Refrescar user si hay cookie al montar la app
   useEffect(() => {
-    const csrf = sessionStorage.getItem('csrf_access_token');
-    if (csrf) {
-      refreshUser();
-    }
+    refreshUser();
   }, []);
 
+  // 🔹 Login
   const login = async (email, password) => {
     try {
       const data = await postLogin(email, password);
@@ -50,10 +58,9 @@ export const UserProvider = ({ children }) => {
 
       if (data?.user) {
         setUser(data.user);
-        sessionStorage.setItem('user_id', data.user.id);
-        // ✅ Después de login exitoso refrescamos desde /me
+        // ✅ refrescar desde /me para asegurar datos actuales
         await refreshUser();
-        navigate('/');
+        navigate('/'); // redirige a home
       } else {
         console.error('❌ Login fallido:', data);
       }
@@ -62,22 +69,31 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    postLogout().then(() => {
+  // 🔹 Logout
+  const logout = async () => {
+    try {
+      await postLogout();
       setUser({});
       sessionStorage.removeItem('csrf_access_token');
       navigate('/login');
-    });
+    } catch (err) {
+      console.error('❌ Error en logout:', err);
+    }
   };
 
-  const register = (username, email, password) => {
-    postRegister(username, email, password).then(() => {
-      login(email, password);
-    });
+  // 🔹 Register
+  const register = async (user_name, email, password) => {
+    try {
+      await postRegister(user_name, email, password);
+      // ✅ Después de registrarse, login automático
+      await login(email, password);
+    } catch (err) {
+      console.error('❌ Error en registro:', err);
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, register }}>
+    <UserContext.Provider value={{ user, login, logout, register, loading }}>
       {children}
     </UserContext.Provider>
   );

@@ -50,12 +50,27 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    # 🔑 Crear token JWT automáticamente al registrarse
+    access_token = create_access_token(identity=str(new_user.id))
+    csrf_token = get_csrf_token(access_token)
+
+    return (
+        jsonify(
+            {
+                "message": "User registered successfully",
+                "user": new_user.serialize(),
+                "user_id": new_user.id,
+                "access_token": access_token,
+                "csrf_token": csrf_token,
+            }
+        ),
+        201,
+    )
 
 
+# ============================
 #   LOGIN
-
-
+# ============================
 @auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -83,6 +98,7 @@ def login():
             "msg": "login successful",
             "user": user.serialize(),
             "user_id": user.id,
+            "access_token": access_token,
             "csrf_token": csrf_token,
         }
     )
@@ -90,9 +106,9 @@ def login():
     return response
 
 
+# ============================
 #   LOGOUT
-
-
+# ============================
 @auth.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
@@ -101,9 +117,9 @@ def logout():
     return response
 
 
+# ============================
 #   GET CURRENT USER
-
-
+# ============================
 @auth.route("/me", methods=["GET"])
 @jwt_required()
 def get_current_user():

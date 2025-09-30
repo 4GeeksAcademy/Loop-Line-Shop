@@ -1,0 +1,122 @@
+import { useState } from 'react';
+import { TextField, Button, Paper, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+
+export default function Register() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    nombre: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('👉 Registrando usuario:', formData);
+    // fetch('/api/register', { ... })
+  };
+
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        p: 4,
+        maxWidth: 400,
+        margin: 'auto',
+        mt: 6,
+        borderRadius: 3,
+        backgroundColor: '#000',
+        color: '#fff',
+      }}
+    >
+      <Typography
+        variant="h5"
+        align="center"
+        gutterBottom
+        sx={{ color: '#D7FF00' }}
+      >
+        Registrarse
+      </Typography>
+
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Nombre"
+          name="nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          margin="normal"
+          InputLabelProps={{ style: { color: '#D7FF00' } }}
+          InputProps={{ style: { color: '#fff' } }}
+        />
+
+        <TextField
+          fullWidth
+          label="Correo electrónico"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          margin="normal"
+          InputLabelProps={{ style: { color: '#D7FF00' } }}
+          InputProps={{ style: { color: '#fff' } }}
+        />
+
+        <TextField
+          fullWidth
+          label="Contraseña"
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          margin="normal"
+          InputLabelProps={{ style: { color: '#D7FF00' } }}
+          InputProps={{ style: { color: '#fff' } }}
+        />
+
+        <TextField
+          fullWidth
+          label="Confirmar contraseña"
+          type="password"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          margin="normal"
+          InputLabelProps={{ style: { color: '#D7FF00' } }}
+          InputProps={{ style: { color: '#fff' } }}
+        />
+
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{
+            mt: 2,
+            backgroundColor: '#D7FF00',
+            color: '#000',
+            fontWeight: 'bold',
+            '&:hover': { backgroundColor: '#c0e600' },
+          }}
+        >
+          Registrarme
+        </Button>
+      </form>
+
+      {/* Botón que vuelve al login */}
+      <Button
+        variant="text"
+        fullWidth
+        onClick={() => navigate('/login')}
+        sx={{ mt: 2, color: '#D7FF00', fontWeight: 'bold' }}
+      >
+        ¿Ya tienes cuenta? Inicia sesión
+      </Button>
+    </Paper>
+  );
+}
