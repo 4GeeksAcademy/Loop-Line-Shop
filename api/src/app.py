@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from src.db import db
 from src.admin.setup_admin import setup_admin
 from flask_cors import CORS
+from src.routes.product import product_routes
 
 # Blueprints
 from src.routes.auth import auth
@@ -61,6 +62,7 @@ def health_check():
 
 
 app.register_blueprint(auth, url_prefix="")
+product_routes(app)
 app.register_blueprint(cart, url_prefix="")
 app.register_blueprint(checkout, url_prefix="")
 app.register_blueprint(orders, url_prefix="")

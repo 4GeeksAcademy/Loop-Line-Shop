@@ -15,7 +15,7 @@ export const postLogin = async (email, password) => {
     //sheaders: {"Access-Control-Allow-Origin":"*"},
     body: JSON.stringify({ email, password }),
   }).then((data) => {
-    if (data?.acces_token) {
+    if (data?.access_token) {
       sessionStorage.setItem('csrf_access_token', data.csrf_token);
       //localStorage.setItem('token', data.access_token);
     }

@@ -13,7 +13,7 @@ class Order(db.Model):
     total = db.Column(db.Float, nullable=False, default=0.0)
     status = db.Column(db.String(50), default="pending", nullable=False)
 
-    # created_at = db.Column(db.DateTime, server_default=text("NOW()"), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=text("NOW()"), nullable=False)
 
     items = db.relationship(
         "OrderItem", backref="order", cascade="all, delete-orphan", lazy=True
