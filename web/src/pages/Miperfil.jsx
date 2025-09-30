@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -20,30 +20,48 @@ export const Miperfil = () => {
     previewFoto: '',
   });
 
+  const [loading, setLoading] = useState(false);
+
   const regiones = [
     { value: 'norte', label: 'Norte' },
     { value: 'centro', label: 'Centro' },
     { value: 'sur', label: 'Sur' },
   ];
 
+  useEffect(() => {
+    return () => {
+      if (formData.previewFoto) {
+        URL.revokeObjectURL(formData.previewFoto);
+      }
+    };
+  }, [formData.previewFoto]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         foto: file,
         previewFoto: URL.createObjectURL(file),
-      });
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('⚠️ No hay sesión iniciada. Por favor, inicia sesión.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const data = new FormData();
@@ -55,36 +73,53 @@ export const Miperfil = () => {
       if (formData.foto) data.append('foto', formData.foto);
 
       const response = await fetch(
-        'https://fluffy-lamp-r4w5pp5496p6h5r4j-5000.app.github.dev/',
+        'https://fluffy-lamp-r4w5pp5496p6h5r4j-5000.app.github.dev/api/perfil',
         {
           method: 'PUT',
           body: data,
           headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token'),
+            Authorization: 'Bearer ' + token,
           },
         }
       );
 
       const result = await response.json();
+
       if (response.ok) {
         console.log('Perfil actualizado:', result);
-        alert('Perfil actualizado correctamente ✅');
+        alert('✅ Perfil actualizado correctamente');
       } else {
         console.error('Error al actualizar:', result);
-        alert('❌ Error al actualizar perfil');
+        alert(
+          `❌ Error al actualizar perfil: ${result.message || 'Revise los datos'}`
+        );
       }
     } catch (error) {
       console.error('Error en la petición:', error);
       alert('⚠️ Error en la conexión con el servidor');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Paper
       elevation={3}
-      sx={{ p: 4, maxWidth: 500, margin: 'auto', borderRadius: 3 }}
+      sx={{
+        p: 4,
+        maxWidth: 600,
+        margin: 'auto',
+        borderRadius: 3,
+        backgroundColor: '#000', // ✅ Fondo negro
+        color: '#fff', // Texto blanco
+      }}
     >
-      <Typography variant="h5" gutterBottom align="center">
+      <Typography
+        variant="h5"
+        gutterBottom
+        align="center"
+        sx={{ color: '#D7FF00' }}
+      >
         Editar perfil
       </Typography>
       <form onSubmit={handleSubmit}>
@@ -98,7 +133,13 @@ export const Miperfil = () => {
             <Button
               variant="contained"
               component="label"
-              sx={{ mt: 1, borderRadius: 2 }}
+              sx={{
+                mt: 1,
+                borderRadius: 2,
+                backgroundColor: '#D7FF00',
+                color: '#000',
+                '&:hover': { backgroundColor: '#c0e600' },
+              }}
             >
               Cambiar Foto de Perfil
               <input
@@ -118,6 +159,9 @@ export const Miperfil = () => {
               name="nombre"
               value={formData.nombre}
               onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: '#D7FF00' } }}
+              InputProps={{ style: { color: '#fff' } }}
             />
           </Grid2>
 
@@ -130,6 +174,9 @@ export const Miperfil = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: '#D7FF00' } }}
+              InputProps={{ style: { color: '#fff' } }}
             />
           </Grid2>
 
@@ -141,6 +188,8 @@ export const Miperfil = () => {
               name="direccion"
               value={formData.direccion}
               onChange={handleChange}
+              InputLabelProps={{ style: { color: '#D7FF00' } }}
+              InputProps={{ style: { color: '#fff' } }}
             />
           </Grid2>
 
@@ -152,11 +201,13 @@ export const Miperfil = () => {
               name="codigoPostal"
               value={formData.codigoPostal}
               onChange={handleChange}
+              InputLabelProps={{ style: { color: '#D7FF00' } }}
+              InputProps={{ style: { color: '#fff' } }}
             />
           </Grid2>
 
           {/* Región */}
-          <Grid2 xs={12} sm={6}>
+          <Grid2 xs={12}>
             <TextField
               select
               fullWidth
@@ -164,6 +215,8 @@ export const Miperfil = () => {
               name="region"
               value={formData.region}
               onChange={handleChange}
+              InputLabelProps={{ style: { color: '#D7FF00' } }}
+              InputProps={{ style: { color: '#fff' } }}
             >
               {regiones.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -178,11 +231,16 @@ export const Miperfil = () => {
             <Button
               type="submit"
               variant="contained"
-              color="primary"
               fullWidth
-              sx={{ borderRadius: 2 }}
+              sx={{
+                borderRadius: 2,
+                backgroundColor: '#D7FF00',
+                color: '#000',
+                '&:hover': { backgroundColor: '#c0e600' },
+              }}
+              disabled={loading}
             >
-              Guardar Cambios
+              {loading ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
           </Grid2>
         </Grid2>

@@ -8,6 +8,7 @@ import {
   Stack,
 } from '@mui/material';
 import { UserContext } from '../context/User';
+import { Link } from 'react-router-dom';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -132,7 +133,12 @@ export const Login = () => {
           justifyContent="space-between"
           sx={{ mt: 2, color: '#D7FF00' }}
         >
-          <Button variant="text" sx={{ color: '#D7FF00', fontWeight: 'bold' }}>
+          <Button
+            variant="text"
+            sx={{ color: '#D7FF00', fontWeight: 'bold' }}
+            component={Link}
+            to="/register"
+          >
             Register
           </Button>
           <Button variant="text" sx={{ color: '#D7FF00', fontWeight: 'bold' }}>

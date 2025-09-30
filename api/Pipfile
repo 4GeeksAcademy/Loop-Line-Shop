@@ -15,9 +15,9 @@ psycopg2-binary = "*"
 python-dotenv = "*"
 cloudinary = "*"
 flask-admin = "*"
-requests = "*"
 datetime = "*"
 flask-migrate = "*"
+requests = "*"
 
 [dev-packages]
 
