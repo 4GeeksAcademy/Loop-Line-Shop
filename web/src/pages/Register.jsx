@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { TextField, Button, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/User';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useContext(UserContext);
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -16,10 +18,14 @@ export default function Register() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('👉 Registrando usuario:', formData);
-    // fetch('/api/register', { ... })
+    try {
+      await register(formData.nombre, formData.email, formData.password);
+    } catch (error) {
+      console.log('la puta madre', error);
+    }
   };
 
   return (

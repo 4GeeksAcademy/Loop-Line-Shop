@@ -5,13 +5,14 @@ import { LoginRedirect } from './components/routing/LoginRedirect';
 import OrderConfirmation from './pages/OrderConfirmation';
 import { NavBar } from './components/NavBar';
 import Orders from './pages/Orders';
+import Register from './pages/Register';
 
 export const App = () => {
   return (
     <div className="app-content">
       <Routes>
         <Route path="/login" element={<LoginRedirect />} />
-
+        <Route path="/register" element={<Register />} />
         <Route element={<GuardedRoute />}>
           <Route element={<LayoutWithNavbar />}>
             {routesConfig.map((route) => (
