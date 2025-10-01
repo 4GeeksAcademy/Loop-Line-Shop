@@ -58,8 +58,16 @@ export default function Register() {
           value={formData.nombre}
           onChange={handleChange}
           margin="normal"
-          InputLabelProps={{ style: { color: '#D7FF00' } }}
-          InputProps={{ style: { color: '#fff' } }}
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
 
         <TextField
@@ -70,8 +78,16 @@ export default function Register() {
           value={formData.email}
           onChange={handleChange}
           margin="normal"
-          InputLabelProps={{ style: { color: '#D7FF00' } }}
-          InputProps={{ style: { color: '#fff' } }}
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
 
         <TextField
@@ -82,8 +98,16 @@ export default function Register() {
           value={formData.password}
           onChange={handleChange}
           margin="normal"
-          InputLabelProps={{ style: { color: '#D7FF00' } }}
-          InputProps={{ style: { color: '#fff' } }}
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
 
         <TextField
@@ -94,8 +118,16 @@ export default function Register() {
           value={formData.confirmPassword}
           onChange={handleChange}
           margin="normal"
-          InputLabelProps={{ style: { color: '#D7FF00' } }}
-          InputProps={{ style: { color: '#fff' } }}
+          sx={{
+            mb: 3,
+            input: { color: '#fff' },
+            label: { color: '#D7FF00' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: '#D7FF00' },
+              '&:hover fieldset': { borderColor: '#c6f500' },
+              '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+            },
+          }}
         />
 
         <Button

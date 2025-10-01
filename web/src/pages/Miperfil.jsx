@@ -160,8 +160,16 @@ export const Miperfil = () => {
               value={formData.nombre}
               onChange={handleChange}
               required
-              InputLabelProps={{ style: { color: '#D7FF00' } }}
-              InputProps={{ style: { color: '#fff' } }}
+              sx={{
+                mb: 3,
+                input: { color: '#fff' },
+                label: { color: '#D7FF00' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#D7FF00' },
+                  '&:hover fieldset': { borderColor: '#c6f500' },
+                  '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+                },
+              }}
             />
           </Grid2>
 
@@ -175,8 +183,16 @@ export const Miperfil = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              InputLabelProps={{ style: { color: '#D7FF00' } }}
-              InputProps={{ style: { color: '#fff' } }}
+              sx={{
+                mb: 3,
+                input: { color: '#fff' },
+                label: { color: '#D7FF00' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#D7FF00' },
+                  '&:hover fieldset': { borderColor: '#c6f500' },
+                  '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+                },
+              }}
             />
           </Grid2>
 
@@ -188,8 +204,16 @@ export const Miperfil = () => {
               name="direccion"
               value={formData.direccion}
               onChange={handleChange}
-              InputLabelProps={{ style: { color: '#D7FF00' } }}
-              InputProps={{ style: { color: '#fff' } }}
+              sx={{
+                mb: 3,
+                input: { color: '#fff' },
+                label: { color: '#D7FF00' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#D7FF00' },
+                  '&:hover fieldset': { borderColor: '#c6f500' },
+                  '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+                },
+              }}
             />
           </Grid2>
 
@@ -201,8 +225,16 @@ export const Miperfil = () => {
               name="codigoPostal"
               value={formData.codigoPostal}
               onChange={handleChange}
-              InputLabelProps={{ style: { color: '#D7FF00' } }}
-              InputProps={{ style: { color: '#fff' } }}
+              sx={{
+                mb: 3,
+                input: { color: '#fff' },
+                label: { color: '#D7FF00' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#D7FF00' },
+                  '&:hover fieldset': { borderColor: '#c6f500' },
+                  '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+                },
+              }}
             />
           </Grid2>
 
@@ -215,8 +247,16 @@ export const Miperfil = () => {
               name="region"
               value={formData.region}
               onChange={handleChange}
-              InputLabelProps={{ style: { color: '#D7FF00' } }}
-              InputProps={{ style: { color: '#fff' } }}
+              sx={{
+                mb: 3,
+                input: { color: '#fff' },
+                label: { color: '#D7FF00' },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#D7FF00' },
+                  '&:hover fieldset': { borderColor: '#c6f500' },
+                  '&.Mui-focused fieldset': { borderColor: '#D7FF00' },
+                },
+              }}
             >
               {regiones.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
